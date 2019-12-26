@@ -22,14 +22,15 @@ const useStyles = makeStyles(theme => ({
         width: '100%',
         height: '100%',
     },
-    formMapElement:{
-        width:'100%',
-        height:'100%'
+    formMapElement: {
+        width: '100%',
+        height: '100%'
     }
 }));
 
 
 function DynamicForm() {
+
     const classes = useStyles()
 
     const formSelectInputLabel = React.useRef(null);
@@ -37,10 +38,9 @@ function DynamicForm() {
     React.useEffect(() => {
         setLabelWidth(formSelectInputLabel.current.offsetWidth);
     }, []);
-
+    const initialPosition = { lat: 35.717752, lng: 51.370039 }
 
     const [state, setState] = React.useState({
-        isLoaded: false,
         resultForm: {
             "title": "A smaple form",
             "id": "1234",
@@ -69,19 +69,81 @@ function DynamicForm() {
                 },
                 {
                     "name": "Base_Location",
-                    "title": "Base Location",
+                    "title": "Base Locationsdfgsdgdsgdsgdsgsdgdsfgdsgdsgdsf",
                     "type": "Location",
                     "options": [
                         { "label": "Base1", "value": { "lat": "1.2", "long": "3.2" } },
                         { "label": "Base2", "value": { "lat": "2.3", "long": "1.434" } }
                     ]
+                },
+                {
+                    "name": "Loc2",
+                    "title": "his Location",
+                    "type": "Location",
+                    "required": false
                 }
             ]
         }
     });
-
-
-
+    function renderFormSwitch(field) {
+        if (field.options !== undefined) {
+            return (
+                <div>
+                    <FormControl className={classes.formControl} variant="outlined" >
+                        <InputLabel ref={formSelectInputLabel} htmlFor="outlined-age-native-simple">
+                            {field.title}
+                        </InputLabel>
+                        <Select
+                            required={true}
+                            labelWidth={labelWidth}
+                            inputProps={{
+                                name: field.name,
+                                id: "outlined-age-native-simple"
+                            }}
+                        >
+                            {
+                                field.options.map(option => {
+                                    return <MenuItem value={JSON.stringify(option.value)}>{option.label}</MenuItem>
+                                })
+                            }
+                        </Select>
+                    </FormControl>
+                </div>
+            )
+        } else
+            switch (field.type) {
+                case 'Text':
+                    return <TextField variant="outlined" required={field.required} className={classes.formTextField} label={field.title} name={field.name} type="text" />
+                case 'Number':
+                    return <TextField variant="outlined" className={classes.formTextField} label={field.title} name={field.name} type="number" />
+                case 'Location':
+                    if (state[getMarkerPositionKeyState(field.name)] === undefined)
+                        state[getMarkerPositionKeyState(field.name)] = initialPosition
+                    return <div>
+                        <p>{field.title}</p>
+                        <div className={classes.formMapElement}>
+                            <input name={field.name} value={JSON.stringify(state[getMarkerPositionKeyState(field.name)])} hidden></input>
+                            <LocationTypeField
+                                onMarkerChanged={(newPosition) => {                                    
+                                    setState(prevState=>{
+                                        return{
+                                            ...prevState,
+                                            [getMarkerPositionKeyState(field.name)]: newPosition
+                                        }
+                                    })
+                                    console.log(state)
+                                }} initialCenter={initialPosition} />
+                        </div>
+                    </div>
+                case 'Date':
+                    return <TextField variant="outlined" className={classes.formTextField} label={field.title} name={field.name} type="date" />
+                default:
+                    return <p>type {field.type} not supported</p>
+            }
+    }
+    function getMarkerPositionKeyState(fieldName){
+        return `${fieldName}MarkerPosition`
+    }
 
     return (
         React.createElement('div', { className: 'DynamicForm' },
@@ -107,49 +169,6 @@ function DynamicForm() {
     );
 }
 
-function renderFormSwitch(field, classes, formSelectLabelWidth, formSelectInputLabel) {
-    if (field.options !== undefined) {
-        return (
-            <div>
-                <FormControl className={classes.formControl} variant="outlined" >
-                    <InputLabel ref={formSelectInputLabel} htmlFor="outlined-age-native-simple">
-                        {field.title}
-                    </InputLabel>
-                    <Select
-                        required={true}
-                        labelWidth={formSelectLabelWidth}
-                        inputProps={{
-                            name: field.name,
-                            id: "outlined-age-native-simple"
-                        }}
-                    >
-                        {
-                            field.options.map(option => {
-                                return <MenuItem value={JSON.stringify(option.value)}>{option.label}</MenuItem>
-                            })
-                        }
-                    </Select>
-                </FormControl>
-            </div>
-        )
-    } else
-        switch (field.type) {
-            case 'Text':
-                return <TextField variant="outlined" required={field.required} className={classes.formTextField} label={field.title} name={field.name} type="text" />
-            case 'Number':
-                return <TextField variant="outlined" className={classes.formTextField} label={field.title} name={field.name} type="number" />
-            case 'Location':
-                return <div>
-                    <p>{field.title}</p>
-                    <div className={classes.formMapElement}>
-                    <LocationTypeField  />
-                    </div>
-                </div>
-            case 'Date':
-                return <TextField variant="outlined" className={classes.formTextField} label={field.title} name={field.name} type="date" />
-            default:
-                return <p>type {field.type} not supported</p>
-        }
-}
+
 
 export default DynamicForm;

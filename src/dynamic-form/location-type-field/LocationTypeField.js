@@ -2,30 +2,33 @@ import React from 'react';
 import { Map, InfoWindow, Marker, GoogleApiWrapper } from 'google-maps-react';
 
 
-export class LocationTypeField extends React.Component {
+export function LocationTypeField(props) {
+    const [markerPosition,setMarkerPosition] = React.useState(props.initialCenter)
+    return (
+        <div style={{ position: 'relative', height: '40vh', width: '100vh' }}>
+            <Map
+                onClick={mapOnClick}
+                google={props.google}
+                zoom={14}
+                initialCenter={props.initialCenter}
+                style={{
+                    width: '100%',
+                    height: '100%',
+                }}
+            >
+                <Marker position={markerPosition} />
 
-    render() {
-        return (
-            <div style= {{position:'relative' ,height:'40vh' ,width:'100vh'}}>
-                <Map
-                    google={this.props.google} zoom={14}
-                    initialCenter={{
-                        lat: 42.39,
-                        lng: -72.52
-                    }}
-                    style={{
-                        width: '100%',
-                        height: '100%',
-                    }}
-                >
-                    <Marker onClick={this.onMarkerClick}
-                        name={'Current location'} />
-
-                </Map>
-            </div>
-        );
+            </Map>
+        </div>
+    );
+    function mapOnClick(mapProps, map, clickEvent){
+        const newPosition = {lat:clickEvent.latLng.lat(),lng:clickEvent.latLng.lng()};
+        setMarkerPosition(newPosition)
+        props.onMarkerChanged(newPosition)
     }
 }
+
+
 
 const LoadingContainer = (props) => (
     <div style={{ height: '30vh', width: '30vh' }}>Fancy loading container!</div>
