@@ -4,8 +4,8 @@ This project is second homework of internet engineering course
 
 ## General Description
 
-This application gets a json from server that describes a form and generates that form with basic html elements
-backend server is in following link [IE-HW1](https://github.com/q010p/IE-HW1)
+This application gets a json from server that describes a form and generates that form with basic html elements.
+backend server that creates jsons  is in the following link [IE-HW1](https://github.com/q010p/IE-HW1)
 
 ## technologies/dependencies used in this project
 
