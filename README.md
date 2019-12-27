@@ -1,11 +1,11 @@
 # IE-HW2
-this is second homework of internet engineering course 
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+This project is second homework of internet engineering course 
 
 ## General Description
 
-This application gets a json from server that describes a form and generate that form with basic html elements
+This application gets a json from server that describes a form and generates that form with basic html elements
+backend server is in following link [IE-HW1](https://github.com/q010p/IE-HW1)
 
 ## technologies/dependencies used in this project
 
@@ -13,6 +13,11 @@ This application gets a json from server that describes a form and generate that
 * [reactjs](https://reactjs.org/)
 * [google-maps-react](https://www.npmjs.com/package/google-maps-react)
 * [Material UI](https://material-ui.com/)
+
+## Available Scripts
+
+This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+
 In the project directory, you can run:
 
 ### `npm start`
