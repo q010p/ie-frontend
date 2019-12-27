@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useEffect, useState, useRef } from 'react'
 import LocationTypeField from './location-type-field/LocationTypeField'
 import './dynamic-form.css'
 import Button from '@material-ui/core/Button';
@@ -29,87 +29,57 @@ const useStyles = makeStyles(theme => ({
 }));
 
 
-function DynamicForm() {
+function DynamicForm(props) {
+    
+
+    const PAGE_STATE_LOADING = "LOADING"
+    const PAGE_STATE_ERROR = "ERROR"
+    const PAGE_STATE_LOADED = "LOADED"
+
 
     const classes = useStyles()
-
-    const formSelectInputLabel = React.useRef(null);
-    const [labelWidth, setLabelWidth] = React.useState(0);
-    React.useEffect(() => {
-        setLabelWidth(formSelectInputLabel.current.offsetWidth);
-    }, []);
+    const [apiCallCount, setApiCallCount] = useState(0)
+    const [state, setState] = React.useState({})
+    const [pageState, setPageState] = useState(PAGE_STATE_LOADING)
+    const [resultForm, setResultForm] = useState()
+    useEffect(() => {
+        setPageState(PAGE_STATE_LOADING)
+        fetch(`http://localhost:4020/api/forms/${props.formId}`)
+            .then(res => res.json())
+            .then((result => {
+                setResultForm(result)
+                setPageState(PAGE_STATE_LOADED)
+            }))
+    }, [apiCallCount])
     const initialPosition = { lat: 35.717752, lng: 51.370039 }
 
-    const [state, setState] = React.useState({
-        resultForm: {
-            "title": "A smaple form",
-            "id": "1234",
-            "fields": [
-                {
-                    "name": "First_Name",
-                    "title": "First Name",
-                    "type": "Text",
-                    "required": true
-                },
-                {
-                    "name": "Loc",
-                    "title": "Your Location",
-                    "type": "Location",
-                    "required": false
-                },
 
-                {
-                    "name": "Request_Type",
-                    "title": "Request Type",
-                    "type": "Number",
-                    "options": [
-                        { "label": "Help", "value": "Help" },
-                        { "label": "Info", "value": "Information" }
-                    ]
-                },
-                {
-                    "name": "Base_Location",
-                    "title": "Base Locationsdfgsdgdsgdsgdsgsdgdsfgdsgdsgdsf",
-                    "type": "Location",
-                    "options": [
-                        { "label": "Base1", "value": { "lat": "1.2", "long": "3.2" } },
-                        { "label": "Base2", "value": { "lat": "2.3", "long": "1.434" } }
-                    ]
-                },
-                {
-                    "name": "Loc2",
-                    "title": "his Location",
-                    "type": "Location",
-                    "required": false
-                }
-            ]
-        }
-    });
     function renderFormSwitch(field) {
         if (field.options !== undefined) {
-            return (
-                <div>
-                    <FormControl className={classes.formControl} variant="outlined" >
-                        <InputLabel ref={formSelectInputLabel} htmlFor="outlined-age-native-simple">
-                            {field.title}
-                        </InputLabel>
-                        <Select
-                            required={true}
-                            labelWidth={labelWidth}
-                            inputProps={{
-                                name: field.name,
-                                id: "outlined-age-native-simple"
-                            }}
-                        >
-                            {
-                                field.options.map(option => {
-                                    return <MenuItem value={JSON.stringify(option.value)}>{option.label}</MenuItem>
-                                })
-                            }
-                        </Select>
-                    </FormControl>
-                </div>
-            )
+            if (pageState === PAGE_STATE_LOADED)
+                return (
+                    <div>
+                        <FormControl className={classes.formControl} variant="outlined" >
+                            <InputLabel htmlFor={field.name + 'Select'}>
+                                {field.title}
+                            </InputLabel>
+                            <Select
+                                required={true}
+                                labelWidth={field.title.length*9}
+                                inputProps={{
+                                    name: field.name,
+                                    id: field.name + "Select"
+                                }}
+                            >
+                                {
+                                    field.options.map(option => {
+                                        return <MenuItem key={option.value} value={JSON.stringify(option.value)}>{option.label}</MenuItem>
+                                    })
+                                }
+                            </Select>
+                        </FormControl>
+                    </div>
+                )
         } else
             switch (field.type) {
                 case 'Text':
@@ -124,9 +94,9 @@ function DynamicForm() {
                         <div className={classes.formMapElement}>
                             <input name={field.name} value={JSON.stringify(state[getMarkerPositionKeyState(field.name)])} hidden></input>
                             <LocationTypeField
-                                onMarkerChanged={(newPosition) => {                                    
-                                    setState(prevState=>{
-                                        return{
+                                onMarkerChanged={(newPosition) => {
+                                    setState(prevState => {
+                                        return {
                                             ...prevState,
                                             [getMarkerPositionKeyState(field.name)]: newPosition
                                         }
@@ -141,32 +111,38 @@ function DynamicForm() {
                     return <p>type {field.type} not supported</p>
             }
     }
-    function getMarkerPositionKeyState(fieldName){
+    function getMarkerPositionKeyState(fieldName) {
         return `${fieldName}MarkerPosition`
     }
 
-    return (
-        React.createElement('div', { className: 'DynamicForm' },
-            <div class='DynamicForm'>
-                <h1>{state.resultForm.title}</h1>
-                <form method='post'>
-                    {
-                        state.resultForm.fields.map((field) => {
-                            return <div>
-                                {
-                                    renderFormSwitch(field, classes, labelWidth, formSelectInputLabel)
-                                }
-                            </div>
-                        })
-                    }
-                    <Button style={{ margin: '8px', width: '100%' }} type='submit' variant="contained" color="primary">
-                        submit
+    if (pageState === PAGE_STATE_LOADING)
+        return <div>loading</div>
+    else if (pageState === PAGE_STATE_ERROR)
+        return <div>error</div>
+    else
+        if (pageState === PAGE_STATE_LOADED)
+            return (
+                React.createElement('div', { className: 'DynamicForm' },
+                    <div className='DynamicForm'>
+                        <h1>{resultForm.title}</h1>
+                        <form method='post'>
+                            {
+                                resultForm.fields.map((field) => {
+                                    return <div key={field.name}>
+                                        {
+                                            renderFormSwitch(field)
+                                        }
+                                    </div>
+                                })
+                            }
+                            <Button style={{ margin: '8px', width: '100%' }} type='submit' variant="contained" color="primary">
+                                submit
                         </Button>
-                </form>
-            </div>
-        )
+                        </form>
+                    </div>
+                )
 
-    );
+            );
 }
 
 

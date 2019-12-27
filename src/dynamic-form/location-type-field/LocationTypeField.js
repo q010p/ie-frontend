@@ -1,11 +1,16 @@
 import React from 'react';
-import { Map, InfoWindow, Marker, GoogleApiWrapper } from 'google-maps-react';
+import { Map, Marker, GoogleApiWrapper } from 'google-maps-react';
 
+/**
+ * 
+ * @param initialCenter props required 
+ * @function onMarkerChanged(newPosition) props - not required
+ */
 
 export function LocationTypeField(props) {
-    const [markerPosition,setMarkerPosition] = React.useState(props.initialCenter)
+    const [markerPosition, setMarkerPosition] = React.useState(props.initialCenter)
     return (
-        <div style={{ position: 'relative', height: '40vh', width: '100vh' }}>
+        <div style={{ position: 'relative', height: '40vh',minWidth:'60vh', maxWidth: '80vh' }}>
             <Map
                 onClick={mapOnClick}
                 google={props.google}
@@ -21,17 +26,18 @@ export function LocationTypeField(props) {
             </Map>
         </div>
     );
-    function mapOnClick(mapProps, map, clickEvent){
-        const newPosition = {lat:clickEvent.latLng.lat(),lng:clickEvent.latLng.lng()};
+    function mapOnClick(mapProps, map, clickEvent) {
+        const newPosition = { lat: clickEvent.latLng.lat(), lng: clickEvent.latLng.lng() };
         setMarkerPosition(newPosition)
-        props.onMarkerChanged(newPosition)
+        if (props.onMarkerChanged !== undefined)
+            props.onMarkerChanged(newPosition)
     }
 }
 
 
 
 const LoadingContainer = (props) => (
-    <div style={{ height: '30vh', width: '30vh' }}>Fancy loading container!</div>
+    <div style={{ height: '30vh', width: '30vh' }}>Loading map!</div>
 )
 
 export default GoogleApiWrapper({
