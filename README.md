@@ -1,4 +1,4 @@
-#IE-HW2
+# IE-HW2
 this is second homework of internet engineering course 
 
 This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
@@ -9,10 +9,10 @@ This application gets a json from server that describes a form and generate that
 
 ## technologies/dependencies used in this project
 
-*nodejs
-*[reactjs](https://reactjs.org/)
-*[google-maps-react](https://www.npmjs.com/package/google-maps-react)
-*[Material UI](https://material-ui.com/)
+* nodejs
+* [reactjs](https://reactjs.org/)
+* [google-maps-react](https://www.npmjs.com/package/google-maps-react)
+* [Material UI](https://material-ui.com/)
 In the project directory, you can run:
 
 ### `npm start`
